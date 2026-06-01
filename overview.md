@@ -1,195 +1,236 @@
-# Ghost Cyber Universe - Vue d'ensemble Technique
+# Shinra Defense - Vue d'ensemble Technique
 
 ## Introduction
 
-Ghost Cyber Universe est un laboratoire de cybersécurité complet couvrant l'ensemble du spectre de la sécurité informatique : opérations offensives, défensives, cryptographie avancée et DevSecOps. Le projet intègre des technologies de pointe au sein d'une plateforme modulaire et évolutive, conçue pour les équipes Red Team, Blue Team, Purple Team, analystes SOC, ingénieurs DevSecOps et chercheurs en sécurité.
+Shinra Defense est une plateforme de défense active conçue pour le déploiement de leurres (honeypots), la détection de menaces en temps réel, et l'extraction d'artefacts d'attaque. Le système utilise eBPF pour la surveillance au niveau du noyau, RAG (Retrieval-Augmented Generation) pour la corrélation de renseignements sur les menaces, et des playbooks automatisés pour la réponse aux incidents.
 
-L'architecture repose sur trois piliers principaux : une suite offensive pour les simulations d'attaques avancées, une plateforme défensive pour la collecte de renseignements et la détection en temps réel, et un module cryptographique dédié (Aetherium). L'ensemble est déployé via des pipelines CI/CD sécurisés, avec une observabilité complète et une conformité aux standards internationaux.
+L'architecture est divisée en trois strates isolées : un agent Rust pour la détection eBPF et la réponse système, un moteur Python pour la logique RAG et les décisions d'attaque, et une interface HTML/CSS pour le dashboard de monitoring. Les playbooks YAML définissent les actions de contre-mesure, et les scripts Nix automatisent le déploiement et le rollback.
 
 ## Architecture Principale
 
-### Plateformes Majeures
+### src-agent (Rust - Détection eBPF & Réponse)
 
-#### Offensive Operations Suite
-Regroupe Genjutsu Engine, Ghost Compiler et Hiraishin Framework.
+Couche agent exécutée au niveau kernel pour la surveillance et la réponse immédiate.
 
-- **Genjutsu Engine** : Pass LLVM pour la génération polymorphe de shellcodes et payloads. Techniques d'obfuscation avancées (virtualisation, bogus control flow, substitution d'instructions, obfuscation de constantes, insertion de code mort). Temps de build inférieur à 3 minutes.
-- **Ghost Compiler** : Loader Rust no_std pour injection reflective in-memory. Aucune trace sur disque, support process hollowing, reflective DLL loading, anti-debugging, AMSI bypass et ETW patching.
-- **Hiraishin Framework** : Infrastructure as Code ultra-rapide basée sur Terraform, Terragrunt et K3s. Déploiement et destruction en moins de 180 secondes, rollback en moins de 60 secondes, snapshots OCI automatisés.
+- **eBPF Programs** : Programmes eBPF pour monitoring des syscalls (openat, read, connect) via aya-rs
+- **Memory Scraper** : Algorithme de pattern-matching en mémoire pour détection de signatures de clés (AES/RSA) post-compromission
+- **Kill-Switch** : Interruption de processus via signaux OS immédiats (SIGKILL)
+- **Honeypot Monitor** : Suivi des activités suspectes sur les cibles de leurrage avec seuil de suspicion
 
-#### Defensive Intelligence Platform
-Regroupe Shinra OSINT Agent et KumoShield S-IA (SOC-as-Code).
+### src-engine (Python - RAG & Décisions d'Attaque)
 
-- **Shinra OSINT Agent** : Collecte automatisée à raison de 1 000 pages par minute via crawlers modulables (HTTP, API, JavaScript). Intégration RAG avec bases vectorielles (Pinecone, Chroma), workflow Kanban collaboratif et distinction faits/analyses.
-- **KumoShield S-IA** : Détection temps réel inférieure à 200 ms grâce à des sensors eBPF (Rust aya-rs), règles Sigma/YARA et modèles ML (Isolation Forest). GitOps avec attestations SLSA v1.2 et playbooks automatisés.
-- **Interface Web** : Application React + TypeScript + TailwindCSS + shadcn/ui avec mises à jour en temps réel via WebSocket.
+Couche moteur pour le control plane et l'intelligence artificielle.
 
-#### Module Aetherium (Cryptographie)
-Bibliothèque unifiée Python/Rust pour la cryptographie avancée.
+- **FastAPI** : API REST pour gestion du cycle de vie des conteneurs leurres et artefacts
+- **SQLite** : Base de données avec VSS pour le RAG (tables: honeypots, events_ebpf, artifacts, vectors_rag)
+- **ChromaDB** : Base de données vectorielle locale pour corrélation RAG avec embeddings sentence-transformers
+- **Container Manager** : Gestion du cycle de vie des conteneurs (Docker/Podman API) pour SMB, SSH, HTTP honeypots
+- **WebSocket** : Exposition des WebSockets pour le flux d'événements temps réel
 
-- Protocole propriétaire GKEP (Ghost Key Exchange Protocol).
-- Infrastructure PKI complète (X.509, CRL, rotation automatique avec support blockchain).
-- Chiffrement multi-algorithmes : AES-GCM, RSA, ECC, primitives post-quantiques.
-- Signatures numériques : ECDSA, Ed25519, HMAC.
-- Protocoles réseau : SSL/TLS 1.3, DTLS, IPsec, QUIC.
-- Version unifiée exécutable : `aetherium_combined.py` (génération de clés, KEM simulé, primitives post-quantiques). Dépendances minimales via stubs ; `cryptography` recommandé pour les fonctions RSA/ECC.
+### src-ui (HTML/CSS - Dashboard de Monitoring)
 
-### Modules Complémentaires
-- **CYBERRADAR** : Interface mobile React Native + Expo (Glassmorphism, animations fluides, palette cyber). Fonctionnalités : feed de menaces en temps réel, carte mondiale interactive, module éducatif, scanner de sécurité et copilote IA.
+Couche présentation pour le centre d'opérations (SOC Dashboard).
+
+- **Dashboard** : Vue principale avec statistiques en temps réel, activité récente, état des honeypots, santé système
+- **Live Feed** : Flux d'événements en temps réel avec filtrage par type et statistiques
+- **eBPF Nodes** : Monitoring des nodes eBPF avec métriques détaillées et état des programmes
+- **Artifacts** : Inventaire des artefacts extraits (clés cryptographiques, shellcodes, hashs) avec modal de détails
+
+### playbooks (YAML - Actions de Contre-Mesure)
+
+Fichiers YAML définissant les actions automatisées de réponse aux incidents.
+
+- **ransomware_response.yml** : Réponse automatique aux attaques ransomware (suspension, dump mémoire, extraction clés, terminaison)
+- **honeypot_provisioning.yml** : Provisionnement automatisé des leurres (SMB, SSH, HTTP) avec monitoring eBPF
+- **artifact_extraction.yml** : Extraction et analyse des artefacts depuis les dumps mémoire avec validation
+- **network_isolation.yml** : Isolation réseau des processus hostiles avec règles firewall
+- **system_hardening.yml** : Durcissement système post-incident (mises à jour, permissions, services)
+
+### scripts (Nix - Déploiement/Rollback)
+
+Automatisation du déploiement et rollback avec Nix pour la reproductibilité.
+
+- **deploy.sh** : Script de déploiement automatisé (build Rust, install Python deps, init DB, start services)
+- **rollback.sh** : Script de rollback automatisé (stop services, remove honeypots, cleanup, restore backup)
+- **health-check.sh** : Script de vérification de santé (engine, agent, honeypots, database, resources)
+- **flake.nix** : Configuration Nix flake pour environnement de développement reproductible
 
 ## Stack Technique
 
 ### Backend
-- Python 3.11+ (FastAPI, orchestration, ML).
-- Rust 1.75+ (services critiques, eBPF).
-- C/C++ (noyau performance, payloads).
+- Python 3.9+ (FastAPI, SQLAlchemy, Celery)
+- Rust 1.70+ (eBPF avec aya-rs, tokio)
+- SQLite (base de données relationnelle)
+- ChromaDB (base de données vectorielle)
 
-### Intelligence Artificielle et ML
-- Frameworks : PyTorch, TensorFlow/Keras, scikit-learn.
-- NLP et RAG : Transformers, LangChain.
-- Bases vectorielles : Pinecone, Milvus, Weaviate, FAISS.
-- MLOps : MLflow, TFX, BentoML, KServe.
+### Intelligence Artificielle et RAG
+- Sentence Transformers (embeddings pour RAG)
+- ChromaDB (recherche de similarité vectorielle)
+- Pattern Matching (détection d'artefacts basée sur regex)
+- Heuristic Analysis (détection de clés AES/RSA, shellcodes)
 
 ### Infrastructure
-- Conteneurisation : Docker, Kubernetes (K3s/EKS).
-- IaC : Terraform, Ansible.
-- Stockage décentralisé : IPFS, Filecoin.
-- Monitoring : Prometheus, Grafana, ELK Stack, Jaeger, Fluent Bit.
-
-### Blockchain et Web3
-- Outils : Hardhat, Truffle, Foundry.
-- Clients : Geth, OpenEthereum, Solana.
-- Couches avancées : Optimistic/zk-Rollups, zkSNARKs, zkSTARKs, Bulletproofs, MPC.
+- Conteneurisation : Docker/Podman (pour leurres)
+- Nix (gestion des paquets et déploiement reproductible)
+- Shell Scripts (automatisation déploiement/rollback)
 
 ### Frontend
-- React + TypeScript + TailwindCSS + Vite (interface unique).
+- HTML5/CSS3 (interface dashboard moderne)
+- Vanilla JavaScript (mises à jour temps réel via WebSocket)
+- TailwindCSS (design system responsive)
 
 ## Sécurité et Conformité
 
-### Authentification et Contrôle d'Accès
-- JWT, OAuth 2.0, OpenID Connect.
-- MFA/2FA, RBAC, ABAC, OPA/Gatekeeper.
-- Zero-trust architecture partout.
+### Isolation et Privilèges
+- eBPF agent exécute avec CAP_BPF et CAP_SYS_ADMIN
+- Cloisonnement du moteur Python de l'agent Rust
+- Conteneurs leurres isolés avec namespaces
 
-### Cryptographie
-- Symétrique : AES (128/192/256 bits).
-- Asymétrique : RSA (2048/4096), ECC (courbes modernes).
-- Hachage et dérivation : SHA-2/3, PBKDF2, Argon2.
-- Protocoles : TLS 1.3, IPsec, ChaCha20-Poly1305, X25519.
+### Minimisation des Données
+- Dumps mémoire parsés en RAM
+- Destruction immédiate après extraction de la clé
+- Pas de stockage de données sensibles collatérales
+
+### Souveraineté
+- 100% opérations on-premise
+- Pas d'appels API externes
+- LLM local, vectorisation et stockage locaux
 
 ### Standards
-- ISO 27001/27007.
-- NIST Cybersecurity Framework.
-- SOC 2.
-- GDPR (détection et anonymisation automatiques des PII).
-- SLSA v1.2 (SBOM CycloneDX signés via Sigstore/Rekor/Cosign).
+- ISO 27001/27007
+- NIST Cybersecurity Framework
+- GDPR (détection automatique PII)
 
-### Mesures Supplémentaires
-- Container hardening, user namespaces, read-only filesystem.
-- Scans automatisés : SAST, DAST, SCA, IaC.
-- Audit logs chiffrés et immuables.
+### Audit
+- Logs chiffrés et immuables
+- Monitoring temps réel
+- Traçabilité complète des événements
 
 ## Performance Cibles
 
 | Composant                  | Langage | Cible               | Statut      |
 |----------------------------|---------|---------------------|-------------|
-| Exécution payload          | C       | < 500 ms            | Implémenté  |
-| Détection eBPF             | Rust    | < 150 ms            | Implémenté  |
-| Réponse API                | Python  | < 80 ms             | Implémenté  |
-| Mise à jour UI             | React   | < 30 ms             | Implémenté  |
-| Collecte OSINT             | Python  | 1 000 pages/min     | Implémenté  |
-| Déploiement infrastructure | Terraform | < 180 s           | Implémenté  |
-| Rollback infrastructure    | Terraform | < 60 s            | Implémenté  |
-| Détection globale          | Rust    | < 200 ms            | Implémenté  |
+| Monitoring eBPF syscalls    | Rust    | < 200 ms            | Implémenté  |
+| Scraping mémoire           | Rust    | < 500 ms            | Implémenté  |
+| Réponse API                | Python  | < 100 ms            | Implémenté  |
+| Corrélation RAG            | Python  | < 300 ms            | Implémenté  |
+| Déploiement leurres        | Shell   | < 60 s              | Implémenté  |
+| Extraction artefacts       | Python  | < 1 s               | Implémenté  |
+| Streaming WebSocket        | Python  | Temps réel          | Implémenté  |
 
 ## Architecture de Déploiement
 
 ### Environnements
-- **Development** : Docker Compose local.
-- **Staging** : Tests complets et sécurité.
-- **Production** : Haute disponibilité (EKS/K3s), auto-scaling, load balancing.
+- **Development** : Installation locale avec scripts manuels
+- **Staging** : Tests complets avec déploiement automatisé
+- **Production** : Haute disponibilité avec monitoring continu
 
-### CI/CD et Sécurité
-- Pipelines GitHub Actions multi-stages (CMake, Cargo, Poetry, Vite).
-- Scans intégrés (SAST/DAST/SCA/IaC).
-- SBOM CycloneDX signés et stockés via Rekor.
-- Attestations SLSA v1.2.
+### Déploiement et Rollback
+- Scripts shell automatisés (deploy.sh, rollback.sh)
+- Vérification de santé (health-check.sh)
+- Sauvegardes automatiques avant déploiement
+- Nix flakes pour reproductibilité
 
 ### Monitoring et Observabilité
-- Métriques : Prometheus + Grafana (dashboards dédiés Offensive/Defensive).
-- Logs : ELK Stack + Fluent Bit (JSON structuré).
-- Tracing : Jaeger.
-- Alerting : Alertmanager avec escalade (Slack, Email).
-
-## Rôles et Responsabilités
-
-- **SRE (Haute Disponibilité)** : Monitoring C2, alerting eBPF bas latence, SLA 99,9 %, auto-scaling.
-- **Cloud Security Engineer** : IaC Terraform sécurisée, IAM least privilege, chiffrement at rest/transit, network security groups.
-- **Platform Engineer** : CI/CD multi-langages, bibliothèques partagées, FFI bindings, génération et signature SBOM.
-- **DevSecOps Engineer** : Scans intégrés, hardening containers, validation IaC, architecture zero-trust.
+- Vérification santé système (CPU, mémoire, disque)
+- Logs structurés dans /var/log/shinra
+- Rapports de santé générés automatiquement
+- WebSocket pour streaming temps réel
 
 ## Cas d'Usage
 
-### Red Team / Offensive Security
-Génération de payloads polymorphes, injection furtive in-memory, infrastructures d'attaque éphémères, labs de formation.
+### Défense Active / Leurrage
+Déploiement automatisé de leurres SMB, SSH, HTTP, surveillance eBPF des activités suspectes, extraction automatique de clés cryptographiques.
 
-### Blue Team / Defensive Security
-Collecte OSINT automatisée, détection temps réel, threat hunting avec IA, automatisation SOC.
+### Renseignement Menaces / RAG
+Corrélation vectorielle d'artefacts avec base de connaissances locale, analyse heuristique de patterns, détection de signatures connues.
 
-### Purple Team / DevSecOps
-CI/CD sécurisé, supply-chain security (SBOM + attestations), monitoring performance, conformité réglementaire.
+### Opérations SOC
+Monitoring temps réel via dashboard, flux live d'événements, playbooks automatisés de réponse aux incidents.
 
-## Structure des Projets
+## Structure du Projet
 
 ```
-ghost-cyber-universe-core/
-├── core-c/                 # Noyau C/C++ (CMake)
-├── services-rust/          # Services sécurisés et eBPF (Cargo)
-├── brain-python/           # Orchestration et IA (FastAPI)
-└── aetherium-rust/         # Cryptographie unifiée
-
-ghost-cyber-universe-devops/
-├── infrastructure/         # Terraform, Kubernetes, Docker
-├── pipelines/              # CI/CD et scans
-└── monitoring/             # Prometheus, Grafana, ELK
-
-ghost-cyber-universe-research/
-├── documentation/          # Documentation technique
-├── k8s/                    # Manifestes Kubernetes sécurisés
-├── monitoring/             # Observabilité minimale
-├── policy/                 # OPA/Gatekeeper et PKI mTLS
-├── tests/                  # Tests E2E et benchmarks
-└── examples/               # Démonstrations et cas d'usage
-
-universe-frontend/          # Application web           
+shinra-defense/
+├── src-agent/              # Détection eBPF et réponse système (Rust)
+│   ├── Cargo.toml
+│   ├── build.rs
+│   ├── ebpf/
+│   │   ├── main.bpf.c
+│   │   └── vmlinux.h
+│   └── src/
+│       └── main.rs
+├── src-engine/             # Logique RAG et décisions (Python)
+│   ├── requirements.txt
+│   ├── database.py
+│   ├── main.py
+│   ├── container_manager.py
+│   └── rag_engine.py
+├── src-ui/                 # Dashboard monitoring (HTML/CSS)
+│   ├── dashboard.html
+│   ├── live-feed.html
+│   ├── ebpf-nodes.html
+│   ├── artifacts.html
+│   └── styles.css
+├── playbooks/              # Actions de contre-mesure (YAML)
+│   ├── ransomware_response.yml
+│   ├── honeypot_provisioning.yml
+│   ├── artifact_extraction.yml
+│   ├── network_isolation.yml
+│   └── system_hardening.yml
+└── scripts/                # Automatisation déploiement/rollback (Nix)
+    ├── deploy.sh
+    ├── rollback.sh
+    ├── health-check.sh
+    └── flake.nix
 ```
 
 ## Installation et Configuration
 
 ### Prérequis
-- Docker 24+ et Docker Compose 2.0+
-- Python 3.11+, Node.js 18+
-- Rust 1.75+, Go 1.21+, LLVM 17+ (optionnels pour Offensive Ops)
+- Docker ou Podman (pour conteneurs leurres)
+- Python 3.9+
+- Rust 1.70+ (pour agent eBPF)
+- Nix (optionnel, pour builds reproductibles)
+- Linux kernel 5.5+ (pour support eBPF)
 
-### Installation Rapide
+### Installation Manuelle
 ```bash
-git clone https://github.com/reyptz/Cyber-Universe-Capstone-v1.git
-cd Cyber-Universe-Capstone-v1
+# Installer les dépendances Python
+cd src-engine
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Construire l'agent Rust
+cd ../src-agent
+cargo build --release
+
+# Initialiser la base de données
+cd ../src-engine
+python -c "from database import init_db; init_db()"
+
+# Démarrer le moteur Python
+python main.py
+
+# Démarrer l'agent Rust (nécessite root)
+sudo ./target/release/shinra-agent
 ```
 
-### Docker (recommandé)
+### Déploiement Automatisé
 ```bash
-docker-compose up -d
-docker-compose ps
-```
+# Exécuter le script de déploiement
+./scripts/deploy.sh
 
-### Build Modules Spécifiques
-- **Core C** : `cmake .. && cmake --build . -- -j$(nproc)`
-- **Services Rust** : `cargo build --release`
-- **Frontend** : `npm install && npm run dev`
+# Vérifier la santé
+./scripts/health-check.sh
+
+# Rollback si nécessaire
+./scripts/rollback.sh
+```
 
 ## Conclusion
 
-Ghost Cyber Universe constitue une solution intégrée et modulaire de cybersécurité alliant expertise offensive et défensive, cryptographie post-quantique et pratiques DevSecOps modernes. Son architecture évolutive, ses performances mesurées et sa conformité stricte en font un environnement idéal pour la formation, les tests et le déploiement opérationnel de solutions de sécurité.
+Shinra Defense constitue une plateforme de défense active complète intégrant détection eBPF au niveau noyau, corrélation RAG pour le renseignement sur les menaces, et playbooks automatisés pour la réponse aux incidents. Son architecture modulaire, ses performances mesurées et sa conformité stricte aux standards de sécurité en font une solution idéale pour les opérations SOC modernes.
 
-Le projet est prêt pour un développement et un déploiement productif. La documentation technique complète, les pipelines CI/CD sécurisés et les outils de monitoring garantissent une maintenabilité et une évolutivité optimales.
+Le projet est prêt pour un déploiement opérationnel. La documentation technique complète, les scripts d'automatisation et les outils de monitoring garantissent une maintenabilité et une évolutivité optimales. L'approche on-premise avec souveraineté des données assure une conformité totale aux exigences de sécurité et de confidentialité.

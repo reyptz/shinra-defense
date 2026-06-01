@@ -1,10 +1,8 @@
-# Ghost Cyber Universe — Capstone v2
+# Shinra Defense — Active Defense Platform
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com)
-[![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://rust-lang.org)
-[![C](https://img.shields.io/badge/C-GNU-blue.svg)](https://gcc.gnu.org)
-[![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-green.svg)](https://fastapi.tiangolo.com)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://rust-lang.org)
 [![License](https://img.shields.io/badge/License-AGPL%20v3-yellow.svg)](LICENSE)
 [![Security](https://img.shields.io/badge/Security-ISO%2027001-red.svg)](https://www.iso.org/isoiec-27001-information-security.html)
 [![DevSecOps](https://img.shields.io/badge/DevSecOps-Enabled-purple.svg)](https://www.devsecops.org)
@@ -15,141 +13,166 @@
 
 ## Description
 
-Ghost Cyber Universe is an integrated cybersecurity platform designed for security professionals, combining offensive and defensive capabilities with cutting-edge technologies in cryptography, artificial intelligence, and DevSecOps.
+Shinra Defense is an active defense platform designed for honeypot deployment, real-time threat detection, and artifact extraction. The system uses eBPF for kernel-level monitoring, RAG for threat intelligence correlation, and automated playbooks for incident response.
 
-## Main Platforms
+## Architecture
 
-### Offensive Operations Suite
-- **Genjutsu Engine**: Polymorphic payload generation with LLVM (< 3 minutes)
-- **Ghost Compiler**: Reflective in-memory injection without traces (Rust no_std)
-- **Hiraishin Framework**: Ultra-fast Infrastructure as Code (deploy/destroy < 180s, rollback < 60s)
+### src-agent (Rust - eBPF Detection & Response)
+- **eBPF Programs**: Kernel-level syscall monitoring (openat, read, connect)
+- **Memory Scraper**: Pattern-matching for cryptographic key detection (AES/RSA)
+- **Kill-Switch**: Process termination via SIGKILL
+- **Honeypot Monitor**: Tracks suspicious activity on honeypot targets
 
-### Defensive Intelligence Platform
-- **Shinra OSINT Agent**: Automated collection (1000 pages/min) with RAG
-- **KumoShield S-IA**: Real-time detection (< 200ms) with eBPF, Sigma, YARA
-- **Modern Web Interface**: React + TypeScript + TailwindCSS
+### src-engine (Python - RAG & Attack Decisions)
+- **FastAPI**: REST API for honeypot and artifact management
+- **SQLite**: Database for honeypots, events, and artifacts
+- **ChromaDB**: Vector database for RAG correlation
+- **Container Manager**: Docker/Podman for honeypot provisioning
+- **WebSocket**: Real-time event streaming
 
-### Aetherium Module (Cryptography)
-- **GKEP Protocol**: Proprietary Ghost Key Exchange Protocol
-- **PKI Infrastructure**: X.509, certificate management, CRLs
-- **Automatic Rotation**: Intelligent key management with blockchain support
-- **Multi-Algorithm Encryption**: AES-GCM, RSA, ECC, RC4 (backward compatibility)
-- **Digital Signatures**: ECDSA, Ed25519, HMAC
-- **Network Protocols**: SSL/TLS/DTLS, IPsec, QUIC
+### src-ui (HTML/CSS - Monitoring Dashboard)
+- **Dashboard**: SOC dashboard with real-time statistics
+- **Live Feed**: Real-time event stream with filtering
+- **eBPF Nodes**: Monitoring of eBPF agent nodes
+- **Artifacts**: Inventory of extracted cryptographic keys and shellcodes
+
+### playbooks (YAML - Counter-Measure Actions)
+- **Ransomware Response**: Automatic neutralization of ransomware attacks
+- **Honeypot Provisioning**: Automated honeypot deployment
+- **Artifact Extraction**: Memory scraping and artifact analysis
+- **Network Isolation**: Hostile process containment
+- **System Hardening**: Post-incident security hardening
+
+### scripts (Nix - Deployment/Rollback)
+- **deploy.sh**: Automated deployment script
+- **rollback.sh**: Automated rollback script
+- **health-check.sh**: System health verification
+- **flake.nix**: Nix flake configuration
 
 ## Technologies Used
 
 ### Backend
-- **Python 3.11+**: Main language with FastAPI
-- **Rust 1.75+**: Secure services and eBPF
-- **C/C++**: Critical performance kernel
-- **Go 1.21+**: CLI tools and infrastructure
+- **Python 3.9+**: FastAPI, SQLAlchemy, Celery
+- **Rust 1.70+**: eBPF with aya-rs, tokio
+- **SQLite**: Database for honeypots, events, artifacts
+- **ChromaDB**: Vector database for RAG
 
 ### Frontend
-- **React 18+**: Modern user interface
-- **TypeScript**: Strict typing and security
+- **HTML5/CSS3**: Modern dashboard interface
+- **Vanilla JavaScript**: Real-time updates via WebSocket
 - **TailwindCSS**: Responsive design system
-- **Vite**: Optimized build tool
 
 ### Artificial Intelligence
-- **ML/DL**: PyTorch, TensorFlow/Keras, scikit-learn
-- **NLP**: Transformers, LangChain, RAG
-- **Vector Databases**: Pinecone, Milvus, Weaviate, FAISS
-- **MLOps**: MLflow, TFX, BentoML
+- **Sentence Transformers**: Embeddings for RAG
+- **ChromaDB**: Vector similarity search
+- **Pattern Matching**: Regex-based artifact detection
 
 ### Infrastructure
-- **Containerization**: Docker, Kubernetes
-- **IaC**: Terraform, Ansible, Pulumi
-- **Monitoring**: Prometheus, Grafana, ELK Stack, Jaeger
-- **CI/CD**: GitHub Actions with security scans
+- **Containerization**: Docker/Podman for honeypots
+- **Nix**: Package management and deployment
+- **Shell Scripts**: Automated deployment and rollback
 
 ## Installation
 
 ### Technical Prerequisites
 
 #### Mandatory
-- **Docker 24+** & **Docker Compose 2.0+**
-- **Git**
-- **Python 3.11+**
-- **Node.js 18+**
+- **Docker** or **Podman** (for honeypot containers)
+- **Python 3.9+**
+- **Rust 1.70+** (for eBPF agent)
+- **Nix** (optional, for reproducible builds)
+- **Linux kernel 5.5+** (for eBPF support)
 
-#### Optional (for Offensive Ops)
-- **Rust 1.75+** (Ghost Compiler)
-- **Go 1.21+** (Hiraishin CLI)
-- **LLVM 17+** (Genjutsu Engine)
+#### Optional
+- **Nix flakes** (for reproducible development environment)
 
-### Quick Installation (Recommended)
+### Quick Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/reyptz/Cyber-Universe-Capstone-v1.git
-cd Cyber-Universe-Capstone-v1
+git clone https://github.com/reyptz/shinra-defense.git
+cd shinra-defense
 ```
 
-### Docker Installation (Production)
+### Manual Installation
 
 ```bash
-# Start all services
-docker-compose up -d
+# Install Python dependencies
+cd src-engine
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Check status
-docker-compose ps
+# Build Rust agent
+cd ../src-agent
+cargo build --release
 
-# Access services
-# - Grafana:    http://localhost:3000 (admin/admin)
-# - API Docs:   http://localhost:8000/api/docs
-# - Frontend:   http://localhost:5173
-# - Prometheus: http://localhost:9090
+# Initialize database
+cd ../src-engine
+python -c "from database import init_db; init_db()"
 
-# View logs
-docker-compose logs -f shinra-api
+# Start Python engine
+python main.py
+
+# Start Rust agent (requires root)
+sudo ./target/release/shinra-agent
+```
+
+### Automated Deployment
+
+```bash
+# Run deployment script
+./scripts/deploy.sh
+
+# Check health
+./scripts/health-check.sh
+
+# Rollback if needed
+./scripts/rollback.sh
 ```
 
 ## Use Cases
 
-### Red Team / Offensive Security
-- **Payload Generation**: Generate undetectable polymorphic shellcodes
-- **Stealth Injection**: Inject code in-memory without traces
-- **Rapid Infrastructure**: Deploy/destroy attack environments in < 3 minutes
-- **Training Labs**: Create ephemeral Red Team exercise labs
+### Active Defense / Honeypot Operations
+- **Honeypot Deployment**: Automated provisioning of SMB, SSH, and HTTP honeypots
+- **Real-time Detection**: eBPF-based monitoring of suspicious file operations
+- **Artifact Extraction**: Automatic extraction of cryptographic keys from memory
+- **Automated Response**: Playbook-based incident response with kill-switch
 
-### Blue Team / Defensive Security
-- **OSINT Collection**: Automatically collect threat intelligence data
-- **Real-time Detection**: Detect threats with < 200ms latency
-- **Threat Hunting**: Search IOCs with RAG and AI enrichment
-- **SOC Automation**: Automate incident response playbooks
+### Threat Intelligence / RAG
+- **Artifact Correlation**: Vector-based similarity search for known threat signatures
+- **Pattern Analysis**: Heuristic detection of AES/RSA keys and shellcodes
+- **Knowledge Base**: Local vector database for offline threat intelligence
 
-### Purple Team / DevSecOps
-- **CI/CD Security**: Secure pipelines with SBOM and attestations
-- **Supply Chain Security**: Complete traceability with Sigstore/Rekor
-- **Performance Monitoring**: Grafana dashboards for operational metrics
-- **Compliance**: ISO 27001/27007 and GDPR compliance
+### SOC Operations
+- **Real-time Monitoring**: WebSocket-based live feed of security events
+- **Dashboard Analytics**: Visual overview of honeypot status and system health
+- **Incident Response**: Automated playbooks for ransomware and network isolation
 
 ## Performance Targets
 
 | Component | Language | Target | Status |
 |-----------|---------|--------|---------|
-| Payload execution | C | < 500ms | Implemented |
-| eBPF detection | Rust | < 150ms | Implemented |
-| API response | Python | < 80ms | Implemented |
-| UI update | React | < 30ms | Implemented |
-| OSINT collection | Python | 1000 pages/min | Implemented |
-| Infrastructure deploy | Terraform | < 180s | Implemented |
+| eBPF syscall monitoring | Rust | < 200ms | Implemented |
+| Memory scraping | Rust | < 500ms | Implemented |
+| API response | Python | < 100ms | Implemented |
+| RAG correlation | Python | < 300ms | Implemented |
+| Honeypot deployment | Shell | < 60s | Implemented |
+| Artifact extraction | Python | < 1s | Implemented |
+| WebSocket streaming | Python | Real-time | Implemented |
 
 ## Security & Compliance
 
 ### Standards
 - **ISO 27001**: Information security management
 - **NIST Cybersecurity Framework**: Cybersecurity framework
-- **SOC 2**: Organizational security controls
-- **GDPR**: Personal data protection
-- **SLSA v1.2**: Supply-chain security
+- **GDPR**: Personal data protection (automatic PII detection)
 
 ### Security Measures
-- **Encryption**: AES-GCM, RSA, ECC, TLS 1.3
-- **Authentication**: JWT, OAuth 2.0, MFA/2FA
-- **Authorization**: RBAC, ABAC, OPA/Gatekeeper
-- **Audit**: Encrypted logs, real-time monitoring
+- **Isolation**: eBPF agent runs with CAP_BPF and CAP_SYS_ADMIN
+- **Data Minimization**: Memory dumps parsed and destroyed after extraction
+- **Sovereignty**: 100% on-premise operations (no external API calls)
+- **Audit Logs**: Encrypted logs with real-time monitoring
 
 ## Contributing
 
@@ -176,7 +199,7 @@ This project is licensed under **AGPL v3**. See the [LICENSE](LICENSE) file for 
 ## Author & Contact
 
 ### Development Team
-**Ghost Cyber Universe Team**
+**Kamoshe Team**
 - Cybersecurity Capstone Project
 - Year: 2025
 
@@ -201,7 +224,7 @@ This project is licensed under **AGPL v3**. See the [LICENSE](LICENSE) file for 
 
 **If this project helps you, don't hesitate to give it a star!**
 
-Made with ❤️ by Ghost Cyber Universe Team
+Made with ❤️ by Kamoshe Team
 
 ---
 
@@ -209,139 +232,166 @@ Made with ❤️ by Ghost Cyber Universe Team
 
 ## Description
 
-Ghost Cyber Universe est une plateforme intégrée de cybersécurité conçue pour les professionnels de la sécurité, combinant des capacités offensives et défensives avec des technologies de pointe en cryptographie, intelligence artificielle et DevSecOps.
+Shinra Defense est une plateforme de défense active conçue pour le déploiement de leurres, la détection de menaces en temps réel et l'extraction d'artefacts. Le système utilise eBPF pour la surveillance au niveau du noyau, RAG pour la corrélation de renseignements sur les menaces et des playbooks automatisés pour la réponse aux incidents.
 
-## Plateformes Principales
+## Architecture
 
-### Offensive Operations Suite
-- **Genjutsu Engine** : Génération polymorphe de payloads avec LLVM (< 3 minutes)
-- **Ghost Compiler** : Injection reflective in-memory sans traces (Rust no_std)
-- **Hiraishin Framework** : Infrastructure as Code ultra-rapide (deploy/destroy < 180s, rollback < 60s)
+### src-agent (Rust - Détection eBPF & Réponse)
+- **Programmes eBPF** : Surveillance des syscalls au niveau noyau (openat, read, connect)
+- **Memory Scraper** : Pattern-matching pour la détection de clés cryptographiques (AES/RSA)
+- **Kill-Switch** : Interruption de processus via SIGKILL
+- **Honeypot Monitor** : Suivi des activités suspectes sur les leurres
 
-### Defensive Intelligence Platform
-- **Shinra OSINT Agent** : Collecte automatisée (1000 pages/min) avec RAG
-- **KumoShield S-IA** : Détection temps réel (< 200ms) avec eBPF, Sigma, YARA
-- **Interface Web Moderne** : React + TypeScript + TailwindCSS
+### src-engine (Python - RAG & Décisions d'Attaque)
+- **FastAPI** : API REST pour la gestion des leurres et artefacts
+- **SQLite** : Base de données pour leurres, événements et artefacts
+- **ChromaDB** : Base de données vectorielle pour corrélation RAG
+- **Container Manager** : Docker/Podman pour le provisionnement des leurres
+- **WebSocket** : Streaming d'événements en temps réel
 
-### Module Aetherium (Cryptographie)
-- **Protocole GKEP** : Ghost Key Exchange Protocol propriétaire
-- **Infrastructure PKI** : X.509, gestion des certificats, CRLs
-- **Rotation Automatique** : Gestion intelligente des clés avec support blockchain
-- **Chiffrement Multi-Algorithmes** : AES-GCM, RSA, ECC, RC4 (rétrocompatibilité)
-- **Signatures Numériques** : ECDSA, Ed25519, HMAC
-- **Protocoles Réseau** : SSL/TLS/DTLS, IPsec, QUIC
+### src-ui (HTML/CSS - Dashboard de Monitoring)
+- **Dashboard** : Dashboard SOC avec statistiques en temps réel
+- **Live Feed** : Flux d'événements en temps réel avec filtrage
+- **Nodes eBPF** : Monitoring des agents eBPF
+- **Artefacts** : Inventaire des clés cryptographiques et shellcodes extraits
+
+### playbooks (YAML - Actions de Contre-Mesure)
+- **Réponse Ransomware** : Neutralisation automatique des attaques ransomware
+- **Provisionnement Leurres** : Déploiement automatisé de leurres
+- **Extraction Artefacts** : Scraping mémoire et analyse d'artefacts
+- **Isolation Réseau** : Confinement de processus hostiles
+- **Durcissement Système** : Sécurisation post-incident
+
+### scripts (Nix - Déploiement/Rollback)
+- **deploy.sh** : Script de déploiement automatisé
+- **rollback.sh** : Script de rollback automatisé
+- **health-check.sh** : Vérification de santé du système
+- **flake.nix** : Configuration Nix flake
 
 ## Technologies Utilisées
 
 ### Backend
-- **Python 3.11+** : FastAPI pour les services principaux
-- **Rust 1.75+** : Services sécurisés et eBPF
-- **C/C++** : Noyau performance critique
+- **Python 3.9+** : FastAPI, SQLAlchemy, Celery
+- **Rust 1.70+** : eBPF avec aya-rs, tokio
+- **SQLite** : Base de données pour leurres, événements, artefacts
+- **ChromaDB** : Base de données vectorielle pour RAG
 
 ### Frontend
-- **React 18+** : Interface utilisateur moderne
-- **TypeScript** : Typage strict et sécurité
+- **HTML5/CSS3** : Interface dashboard moderne
+- **Vanilla JavaScript** : Mises à jour en temps réel via WebSocket
 - **TailwindCSS** : Design system responsive
-- **Vite** : Build tool optimisé
 
 ### Intelligence Artificielle
-- **ML/DL** : PyTorch, TensorFlow/Keras, scikit-learn
-- **NLP** : Transformers, LangChain, RAG
-- **Vector Databases** : Pinecone, Milvus, Weaviate, FAISS
-- **MLOps** : MLflow, TFX, BentoML
+- **Sentence Transformers** : Embeddings pour RAG
+- **ChromaDB** : Recherche de similarité vectorielle
+- **Pattern Matching** : Détection d'artefacts basée sur regex
 
 ### Infrastructure
-- **Conteneurisation** : Docker, Kubernetes
-- **IaC** : Terraform, Ansible, Pulumi
-- **Monitoring** : Prometheus, Grafana, ELK Stack, Jaeger
-- **CI/CD** : GitHub Actions avec scans de sécurité
+- **Conteneurisation** : Docker/Podman pour leurres
+- **Nix** : Gestion des paquets et déploiement
+- **Shell Scripts** : Déploiement et rollback automatisés
 
 ## Installation
 
 ### Prérequis Techniques
 
 #### Obligatoires
-- **Docker 24+** & **Docker Compose 2.0+**
-- **Git**
-- **Python 3.11+**
-- **Node.js 18+**
+- **Docker** ou **Podman** (pour conteneurs leurres)
+- **Python 3.9+**
+- **Rust 1.70+** (pour agent eBPF)
+- **Nix** (optionnel, pour builds reproductibles)
+- **Linux kernel 5.5+** (pour support eBPF)
 
-#### Optionnels (pour Offensive Ops)
-- **Rust 1.75+** (Ghost Compiler)
-- **LLVM 17+** (Genjutsu Engine)
+#### Optionnels
+- **Nix flakes** (pour environnement de développement reproductible)
 
-### Installation Rapide (Recommandée)
+### Installation Rapide
 
 ```bash
 # Cloner le repository
-git clone https://github.com/reyptz/Cyber-Universe-Capstone-v1.git
-cd Cyber-Universe-Capstone-v1
+git clone https://github.com/reyptz/shinra-defense.git
+cd shinra-defense
 ```
 
-### Installation avec Docker (Production)
+### Installation Manuelle
 
 ```bash
-# Démarrer tous les services
-docker-compose up -d
+# Installer les dépendances Python
+cd src-engine
+python -m venv venv
+source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Vérifier le statut
-docker-compose ps
+# Construire l'agent Rust
+cd ../src-agent
+cargo build --release
 
-# Accéder aux services
-# - Grafana:    http://localhost:3000 (admin/admin)
-# - API Docs:   http://localhost:8000/api/docs
-# - Frontend:   http://localhost:5173
-# - Prometheus: http://localhost:9090
+# Initialiser la base de données
+cd ../src-engine
+python -c "from database import init_db; init_db()"
 
-# Voir les logs
-docker-compose logs -f shinra-api
+# Démarrer le moteur Python
+python main.py
+
+# Démarrer l'agent Rust (nécessite root)
+sudo ./target/release/shinra-agent
+```
+
+### Déploiement Automatisé
+
+```bash
+# Exécuter le script de déploiement
+./scripts/deploy.sh
+
+# Vérifier la santé
+./scripts/health-check.sh
+
+# Rollback si nécessaire
+./scripts/rollback.sh
 ```
 
 ## Cas d'Usage
 
-### Red Team / Offensive Security
-- **Payload Generation** : Générer des shellcodes polymorphes indétectables
-- **Stealth Injection** : Injecter du code en mémoire sans traces
-- **Rapid Infrastructure** : Déployer/détruire des environnements d'attaque en < 3 minutes
-- **Training Labs** : Créer des labs éphémères pour exercices Red Team
+### Défense Active / Opérations Leurres
+- **Déploiement Leurres** : Provisionnement automatisé de leurres SMB, SSH et HTTP
+- **Détection Temps Réel** : Surveillance eBPF des opérations de fichiers suspectes
+- **Extraction Artefacts** : Extraction automatique de clés cryptographiques depuis la mémoire
+- **Réponse Automatisée** : Playbooks de réponse aux incidents avec kill-switch
 
-### Blue Team / Defensive Security
-- **OSINT Collection** : Collecter automatiquement des données de threat intelligence
-- **Real-time Detection** : Détecter des menaces avec < 200ms de latence
-- **Threat Hunting** : Rechercher des IOCs avec RAG et enrichissement IA
-- **SOC Automation** : Automatiser les playbooks de réponse aux incidents
+### Renseignement Menaces / RAG
+- **Corrélation Artefacts** : Recherche de similarité vectorielle pour signatures de menaces connues
+- **Analyse de Patterns** : Détection heuristique de clés AES/RSA et shellcodes
+- **Base de Connaissances** : Base de données vectorielle locale pour renseignement hors-ligne
 
-### Purple Team / DevSecOps
-- **CI/CD Security** : Pipelines sécurisés avec SBOM et attestations
-- **Supply Chain Security** : Traçabilité complète avec Sigstore/Rekor
-- **Performance Monitoring** : Dashboards Grafana pour métriques opérationnelles
-- **Compliance** : Conformité ISO 27001/27007 et RGPD
+### Opérations SOC
+- **Monitoring Temps Réel** : Flux live d'événements de sécurité via WebSocket
+- **Analytics Dashboard** : Vue visuelle de l'état des leurres et santé système
+- **Réponse Incidents** : Playbooks automatisés pour ransomware et isolation réseau
 
 ## Performance Cibles
 
-| Composant | Langage | Target | Status |
+| Composant | Langage | Cible | Statut |
 |-----------|---------|--------|---------|
-| Payload execution | C | < 500ms | Implémenté |
-| eBPF detection | Rust | < 150ms | Implémenté |
-| API response | Python | < 80ms | Implémenté |
-| UI update | React | < 30ms | Implémenté |
-| OSINT collection | Python | 1000 pages/min | Implémenté |
-| Infrastructure deploy | Terraform | < 180s | Implémenté |
+| Monitoring eBPF syscalls | Rust | < 200ms | Implémenté |
+| Scraping mémoire | Rust | < 500ms | Implémenté |
+| Réponse API | Python | < 100ms | Implémenté |
+| Corrélation RAG | Python | < 300ms | Implémenté |
+| Déploiement leurres | Shell | < 60s | Implémenté |
+| Extraction artefacts | Python | < 1s | Implémenté |
+| Streaming WebSocket | Python | Temps réel | Implémenté |
 
 ## Sécurité et Conformité
 
 ### Standards
 - **ISO 27001** : Management de la sécurité de l'information
 - **NIST Cybersecurity Framework** : Cadre de cybersécurité
-- **SOC 2** : Contrôles de sécurité organisationnels
-- **GDPR** : Protection des données personnelles
-- **SLSA v1.2** : Supply-chain security
+- **GDPR** : Protection des données personnelles (détection automatique PII)
 
 ### Mesures de Sécurité
-- **Chiffrement** : AES-GCM, RSA, ECC, TLS 1.3
-- **Authentification** : JWT, OAuth 2.0, MFA/2FA
-- **Autorisation** : RBAC, ABAC, OPA/Gatekeeper
-- **Audit** : Logs chiffrés, monitoring temps réel
+- **Isolation** : Agent eBPF exécute avec CAP_BPF et CAP_SYS_ADMIN
+- **Minimisation Données** : Dumps mémoire parsés et détruits après extraction
+- **Souveraineté** : 100% opérations on-premise (pas d'appels API externes)
+- **Audit Logs** : Logs chiffrés avec monitoring temps réel
 
 ## Contribuer
 
@@ -368,7 +418,7 @@ Ce projet est sous licence **AGPL v3**. Voir le fichier [LICENSE](LICENSE) pour 
 ## Auteur & Contact
 
 ### Équipe de Développement
-**Ghost Cyber Universe Team**
+**Kamoshe Team**
 - Projet Capstone en Cybersécurité
 - Année : 2025
 
@@ -391,4 +441,4 @@ Ce projet est sous licence **AGPL v3**. Voir le fichier [LICENSE](LICENSE) pour 
 
 **Si ce projet vous aide, n'hésitez pas à lui donner une étoile !**
 
-Made with ❤️ by Ghost Cyber Universe Team
+Made with ❤️ by Kamoshe Team

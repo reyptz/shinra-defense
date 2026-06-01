@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinra Defense - Nodes eBPF</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🛡️ Shinra Defense</h1>
+                <span class="subtitle">Active Defense Platform</span>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="live-feed.html" class="nav-link">Live Feed</a>
+                <a href="ebpf-nodes.html" class="nav-link active">Nodes eBPF</a>
+                <a href="artifacts.html" class="nav-link">Artefacts</a>
+            </nav>
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span class="status-text">Système Opérationnel</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Nodes Overview -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>⚡ État des Nodes eBPF</h2>
+                    <div class="node-controls">
+                        <button class="btn btn-primary">🔄 Rafraîchir</button>
+                        <button class="btn btn-secondary">➕ Ajouter Node</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Nodes Grid -->
+            <section class="section">
+                <div class="nodes-grid">
+                    <!-- Node 1 -->
+                    <div class="node-card online">
+                        <div class="node-header">
+                            <div class="node-info">
+                                <h3>Node-Alpha</h3>
+                                <span class="node-id">ID: eBPF-001</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-dot online"></span>
+                                <span class="status-text">En ligne</span>
+                            </div>
+                        </div>
+                        <div class="node-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value">12%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Mémoire</span>
+                                <span class="metric-value">45 MB</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Syscalls/sec</span>
+                                <span class="metric-value">1,234</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value">45j 12h</span>
+                            </div>
+                        </div>
+                        <div class="node-programs">
+                            <h4>Programmes Actifs</h4>
+                            <div class="program-list">
+                                <span class="program-tag">sys_enter_openat</span>
+                                <span class="program-tag">sys_enter_read</span>
+                                <span class="program-tag">sys_enter_connect</span>
+                                <span class="program-tag">memory_scraper</span>
+                            </div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn btn-sm btn-secondary">📊 Détails</button>
+                            <button class="btn btn-sm btn-warning">⏸️ Pause</button>
+                        </div>
+                    </div>
+
+                    <!-- Node 2 -->
+                    <div class="node-card online">
+                        <div class="node-header">
+                            <div class="node-info">
+                                <h3>Node-Beta</h3>
+                                <span class="node-id">ID: eBPF-002</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-dot online"></span>
+                                <span class="status-text">En ligne</span>
+                            </div>
+                        </div>
+                        <div class="node-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value">8%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Mémoire</span>
+                                <span class="metric-value">38 MB</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Syscalls/sec</span>
+                                <span class="metric-value">987</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value">32j 8h</span>
+                            </div>
+                        </div>
+                        <div class="node-programs">
+                            <h4>Programmes Actifs</h4>
+                            <div class="program-list">
+                                <span class="program-tag">sys_enter_write</span>
+                                <span class="program-tag">sys_enter_execve</span>
+                                <span class="program-tag">kill_switch</span>
+                            </div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn btn-sm btn-secondary">📊 Détails</button>
+                            <button class="btn btn-sm btn-warning">⏸️ Pause</button>
+                        </div>
+                    </div>
+
+                    <!-- Node 3 -->
+                    <div class="node-card warning">
+                        <div class="node-header">
+                            <div class="node-info">
+                                <h3>Node-Gamma</h3>
+                                <span class="node-id">ID: eBPF-003</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-dot warning"></span>
+                                <span class="status-text">Attention</span>
+                            </div>
+                        </div>
+                        <div class="node-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value">78%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Mémoire</span>
+                                <span class="metric-value">120 MB</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Syscalls/sec</span>
+                                <span class="metric-value">3,456</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value">7j 3h</span>
+                            </div>
+                        </div>
+                        <div class="node-programs">
+                            <h4>Programmes Actifs</h4>
+                            <div class="program-list">
+                                <span class="program-tag">sys_enter_openat</span>
+                                <span class="program-tag">sys_enter_read</span>
+                                <span class="program-tag">memory_scraper</span>
+                                <span class="program-tag">kill_switch</span>
+                            </div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn btn-sm btn-secondary">📊 Détails</button>
+                            <button class="btn btn-sm btn-danger">🔄 Redémarrer</button>
+                        </div>
+                    </div>
+
+                    <!-- Node 4 -->
+                    <div class="node-card offline">
+                        <div class="node-header">
+                            <div class="node-info">
+                                <h3>Node-Delta</h3>
+                                <span class="node-id">ID: eBPF-004</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-dot offline"></span>
+                                <span class="status-text">Hors ligne</span>
+                            </div>
+                        </div>
+                        <div class="node-metrics">
+                            <div class="metric">
+                                <span class="metric-label">CPU</span>
+                                <span class="metric-value">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Mémoire</span>
+                                <span class="metric-value">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Syscalls/sec</span>
+                                <span class="metric-value">-</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Uptime</span>
+                                <span class="metric-value">-</span>
+                            </div>
+                        </div>
+                        <div class="node-programs">
+                            <h4>Programmes Actifs</h4>
+                            <div class="program-list">
+                                <span class="program-tag inactive">Aucun</span>
+                            </div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn btn-sm btn-primary">▶️ Démarrer</button>
+                            <button class="btn btn-sm btn-secondary">📋 Logs</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Global Statistics -->
+            <section class="section">
+                <h3>📊 Statistiques Globales eBPF</h3>
+                <div class="global-stats">
+                    <div class="global-stat-item">
+                        <span class="global-stat-label">Nodes Actifs</span>
+                        <span class="global-stat-value success">3/4</span>
+                    </div>
+                    <div class="global-stat-item">
+                        <span class="global-stat-label">Total Syscalls</span>
+                        <span class="global-stat-value">5,677</span>
+                    </div>
+                    <div class="global-stat-item">
+                        <span class="global-stat-label">Détections</span>
+                        <span class="global-stat-value">1,234</span>
+                    </div>
+                    <div class="global-stat-item">
+                        <span class="global-stat-label">Extractions Mémoire</span>
+                        <span class="global-stat-value">89</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Syscall Monitoring -->
+            <section class="section">
+                <h3>🔍 Monitoring Syscalls</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Syscall</th>
+                                <th>Node</th>
+                                <th>Fréquence/min</th>
+                                <th>Dernière exécution</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>sys_enter_openat</td>
+                                <td>Node-Alpha</td>
+                                <td>456</td>
+                                <td>Il y a 2s</td>
+                                <td><span class="status-badge success">Actif</span></td>
+                            </tr>
+                            <tr>
+                                <td>sys_enter_read</td>
+                                <td>Node-Alpha</td>
+                                <td>312</td>
+                                <td>Il y a 5s</td>
+                                <td><span class="status-badge success">Actif</span></td>
+                            </tr>
+                            <tr>
+                                <td>sys_enter_connect</td>
+                                <td>Node-Beta</td>
+                                <td>234</td>
+                                <td>Il y a 1s</td>
+                                <td><span class="status-badge success">Actif</span></td>
+                            </tr>
+                            <tr>
+                                <td>memory_scraper</td>
+                                <td>Node-Gamma</td>
+                                <td>89</td>
+                                <td>Il y a 3s</td>
+                                <td><span class="status-badge warning">Surcharge</span></td>
+                            </tr>
+                            <tr>
+                                <td>kill_switch</td>
+                                <td>Node-Beta</td>
+                                <td>12</td>
+                                <td>Il y a 45s</td>
+                                <td><span class="status-badge success">Actif</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

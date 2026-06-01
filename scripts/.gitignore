@@ -1,0 +1,10 @@
+# Ignore backup directories
+backups/
+/tmp/
+
+# Ignore log files
+*.log
+*.pid
+
+# Ignore temporary files
+*.tmp

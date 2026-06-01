@@ -1,0 +1,88 @@
+---
+name: "Network Isolation - Hostile Process Containment"
+description: "Isolation réseau des processus hostiles détectés"
+version: "1.0"
+author: "Shinra Defense Team"
+
+# Conditions de déclenchement
+triggers:
+  - type: "ebpf_event"
+    syscall: "connect"
+    destination: "0.0.0.0/0"
+    suspicious_ports:
+      - 4444
+      - 6666
+      - 1337
+  - type: "artifact"
+    artifact_type: "Shellcode"
+    confidence: 0.70
+
+# Actions d'isolation
+actions:
+  - name: "Identifier les connexions réseau du processus"
+    type: "network_analysis"
+    target_pid: "{{ event.pid }}"
+    register: "network_connections"
+
+  - name: "Bloquer les connexions sortantes"
+    type: "firewall_rule"
+    action: "add"
+    rules:
+      - chain: "OUTPUT"
+        protocol: "tcp"
+        source_pid: "{{ event.pid }}"
+        action: "DROP"
+      - chain: "OUTPUT"
+        protocol: "udp"
+        source_pid: "{{ event.pid }}"
+        action: "DROP"
+
+  - name: "Isoler le processus dans un namespace réseau"
+    type: "namespace_isolation"
+    target_pid: "{{ event.pid }}"
+    namespace_type: "network"
+    network_mode: "isolated"
+
+  - name: "Journaliser les tentatives de connexion bloquées"
+    type: "logging"
+    level: "warning"
+    message: "Connexion bloquée pour PID {{ event.pid }}"
+    details:
+      pid: "{{ event.pid }}"
+      connections: "{{ network_connections }}"
+      timestamp: "{{ timestamp }}"
+
+  - name: "Notifier l'équipe SOC"
+    type: "notification"
+    channels:
+      - "websocket"
+    message:
+      severity: "warning"
+      title: "Processus isolé pour activité réseau suspecte"
+      details:
+        pid: "{{ event.pid }}"
+        blocked_connections: "{{ network_connections | length }}"
+        timestamp: "{{ timestamp }}"
+
+# Actions de rollback
+rollback:
+  - name: "Supprimer les règles firewall"
+    type: "firewall_rule"
+    action: "delete"
+    rules:
+      - chain: "OUTPUT"
+        source_pid: "{{ event.pid }}"
+
+  - name: "Restaurer le namespace réseau"
+    type: "namespace_restoration"
+    target_pid: "{{ event.pid }}"
+    namespace_type: "network"
+
+# Paramètres de configuration
+config:
+  suspicious_ports:
+    - 4444
+    - 6666
+    - 1337
+    - 31337
+  isolation_timeout: 3600  # 1 heure

@@ -1,0 +1,108 @@
+---
+name: "Ransomware Response - Automatic Neutralization"
+description: "Réponse automatique aux attaques ransomware détectées par eBPF"
+version: "1.0"
+author: "Shinra Defense Team"
+
+# Conditions de déclenchement
+triggers:
+  - type: "ebpf_event"
+    syscall: "openat"
+    pattern: ".*\\.(exe|dll|doc|docx|xls|xlsx|pdf|jpg|png|mp4|mkv)$"
+    frequency_threshold: 10  # Plus de 10 fichiers en 30 secondes
+    time_window: 30  # secondes
+  
+  - type: "artifact"
+    artifact_type: "AES-256"
+    confidence: 0.85  # Confiance minimale
+
+# Actions de contre-mesure
+actions:
+  - name: "Suspendre le processus attaquant"
+    type: "process_control"
+    action: "suspend"
+    target_pid: "{{ event.pid }}"
+    timeout: 5
+
+  - name: "Dump mémoire du processus"
+    type: "memory_dump"
+    target_pid: "{{ event.pid }}"
+    output_path: "/tmp/shinra/dumps/{{ event.pid }}_{{ timestamp }}.dmp"
+    max_size: "500MB"
+
+  - name: "Extraction des clés cryptographiques"
+    type: "artifact_extraction"
+    source: "{{ memory_dump_path }}"
+    patterns:
+      - "AES-256: 64 hex chars"
+      - "RSA: 256+ hex chars"
+    confidence_threshold: 0.80
+
+  - name: "Terminer le processus"
+    type: "process_control"
+    action: "terminate"
+    signal: "SIGKILL"
+    target_pid: "{{ event.pid }}"
+
+  - name: "Isoler le conteneur honeypot"
+    type: "container_control"
+    action: "isolate"
+    container_id: "{{ honeypot.container_id }}"
+    network_mode: "none"
+
+  - name: "Détruire le honeypot compromis"
+    type: "container_control"
+    action: "remove"
+    container_id: "{{ honeypot.container_id }}"
+    force: true
+
+  - name: "Indexer les artefacts extraits"
+    type: "database"
+    action: "insert"
+    table: "artifacts"
+    data:
+      event_id: "{{ event.id }}"
+      artifact_type: "{{ extracted_artifact.type }}"
+      value: "{{ extracted_artifact.value }}"
+      confidence: "{{ extracted_artifact.confidence }}"
+
+  - name: "Corréler avec la base RAG"
+    type: "rag_correlation"
+    artifact_value: "{{ extracted_artifact.value }}"
+    artifact_type: "{{ extracted_artifact.type }}"
+    similarity_threshold: 0.80
+
+  - name: "Notifier l'équipe SOC"
+    type: "notification"
+    channels:
+      - "websocket"
+      - "webhook"
+    message:
+      severity: "critical"
+      title: "Ransomware détecté et neutralisé"
+      details:
+        pid: "{{ event.pid }}"
+        artifact_type: "{{ extracted_artifact.type }}"
+        confidence: "{{ extracted_artifact.confidence }}"
+        timestamp: "{{ timestamp }}"
+
+# Actions de rollback
+rollback:
+  - name: "Restaurer le honeypot"
+    type: "container_control"
+    action: "create"
+    honeypot_type: "{{ honeypot.type }}"
+    endpoint: "{{ honeypot.endpoint }}"
+    network: "bridge"
+
+  - name: "Nettoyer les dumps temporaires"
+    type: "file_cleanup"
+    path: "/tmp/shinra/dumps/"
+    older_than: "24h"
+
+# Paramètres de configuration
+config:
+  max_memory_dump_size: "500MB"
+  process_termination_timeout: 10
+  artifact_confidence_threshold: 0.80
+  notification_webhook_url: "https://soc.example.com/webhook/shinra"

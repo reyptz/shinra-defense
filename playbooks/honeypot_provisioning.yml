@@ -1,0 +1,127 @@
+---
+name: "Honeypot Provisioning - Automated Deployment"
+description: "Provisionnement automatisé des leurres pour détection active"
+version: "1.0"
+author: "Shinra Defense Team"
+
+# Conditions de déclenchement
+triggers:
+  - type: "scheduled"
+    cron: "0 */6 * * *"  # Toutes les 6 heures
+  - type: "manual"
+    command: "deploy_honeypot"
+
+# Actions de provisionnement
+actions:
+  - name: "Créer honeypot SMB"
+    type: "container_provisioning"
+    honeypot_type: "smb"
+    config:
+      name: "honeypot-smb-{{ random_id }}"
+      image: "crazymax/samba:latest"
+      port: 445
+      environment:
+        TZ: "UTC"
+        SMB_WORKGROUP: "WORKGROUP"
+        SMB_SHARE: "honeypot"
+        SMB_SHARE_PATH: "/data"
+      volumes:
+        - "/tmp/honeypot-data/smb:/data:rw"
+      network: "bridge"
+    register: "smb_container_id"
+
+  - name: "Créer honeypot SSH"
+    type: "container_provisioning"
+    honeypot_type: "ssh"
+    config:
+      name: "honeypot-ssh-{{ random_id }}"
+      image: "dtagdevsec/cowrie:latest"
+      port: 2222
+      environment:
+        COWRIE_TELNET_ENABLED: "false"
+      network: "bridge"
+    register: "ssh_container_id"
+
+  - name: "Créer honeypot HTTP"
+    type: "container_provisioning"
+    honeypot_type: "http"
+    config:
+      name: "honeypot-http-{{ random_id }}"
+      image: "honeypot/honeytrap:latest"
+      port: 80
+      network: "bridge"
+    register: "http_container_id"
+
+  - name: "Enregistrer les honeypots en base de données"
+    type: "database"
+    action: "insert"
+    table: "honeypots"
+    data:
+      - type: "smb"
+        status: "active"
+        endpoint: "0.0.0.0:445"
+        container_id: "{{ smb_container_id }}"
+      - type: "ssh"
+        status: "active"
+        endpoint: "0.0.0.0:2222"
+        container_id: "{{ ssh_container_id }}"
+      - type: "http"
+        status: "active"
+        endpoint: "0.0.0.0:80"
+        container_id: "{{ http_container_id }}"
+
+  - name: "Démarrer le monitoring eBPF sur les leurres"
+    type: "ebpf_monitoring"
+    targets:
+      - "/tmp/honeypot-data/smb"
+      - "/tmp/honeypot-data/ssh"
+      - "/tmp/honeypot-data/http"
+    syscalls:
+      - "openat"
+      - "read"
+      - "write"
+      - "connect"
+
+  - name: "Vérifier l'état des honeypots"
+    type: "health_check"
+    containers:
+      - "{{ smb_container_id }}"
+      - "{{ ssh_container_id }}"
+      - "{{ http_container_id }}"
+    timeout: 30
+    retries: 3
+
+# Actions de rollback
+rollback:
+  - name: "Arrêter tous les honeypots créés"
+    type: "container_control"
+    action: "stop"
+    containers:
+      - "{{ smb_container_id }}"
+      - "{{ ssh_container_id }}"
+      - "{{ http_container_id }}"
+
+  - name: "Supprimer les honeypots de la base de données"
+    type: "database"
+    action: "delete"
+    table: "honeypots"
+    condition:
+      container_id:
+        - "{{ smb_container_id }}"
+        - "{{ ssh_container_id }}"
+        - "{{ http_container_id }}"
+
+  - name: "Nettoyer les volumes temporaires"
+    type: "volume_cleanup"
+    paths:
+      - "/tmp/honeypot-data/smb"
+      - "/tmp/honeypot-data/ssh"
+      - "/tmp/honeypot-data/http"
+
+# Paramètres de configuration
+config:
+  default_network: "bridge"
+  health_check_interval: 30
+  max_retries: 3
+  cleanup_old_honeypots: true
+  max_honeypot_age_hours: 24

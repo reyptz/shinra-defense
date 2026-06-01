@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinra Defense - Dashboard SOC</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🛡️ Shinra Defense</h1>
+                <span class="subtitle">Active Defense Platform</span>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="live-feed.html" class="nav-link">Live Feed</a>
+                <a href="ebpf-nodes.html" class="nav-link">Nodes eBPF</a>
+                <a href="artifacts.html" class="nav-link">Artefacts</a>
+            </nav>
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span class="status-text">Système Opérationnel</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Stats Overview -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3>Honeypots Actifs</h3>
+                        <p class="stat-value" id="active-honeypots">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-content">
+                        <h3>Événements eBPF</h3>
+                        <p class="stat-value" id="ebpf-events">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔑</div>
+                    <div class="stat-content">
+                        <h3>Clés Récupérées</h3>
+                        <p class="stat-value" id="recovered-keys">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚨</div>
+                    <div class="stat-content">
+                        <h3>Menaces Neutralisées</h3>
+                        <p class="stat-value" id="neutralized-threats">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activity -->
+            <section class="section">
+                <h2>📊 Activité Récente</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Cible</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activity">
+                            <tr>
+                                <td colspan="5" class="no-data">Chargement des données...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Honeypot Status -->
+            <section class="section">
+                <h2>🎭 État des Honeypots</h2>
+                <div class="honeypot-grid" id="honeypot-grid">
+                    <div class="honeypot-card">
+                        <div class="honeypot-header">
+                            <span class="honeypot-type">SMB</span>
+                            <span class="honeypot-status active">Actif</span>
+                        </div>
+                        <div class="honeypot-info">
+                            <p>Endpoint: 192.168.1.100:445</p>
+                            <p>Connexions: 12</p>
+                        </div>
+                    </div>
+                    <div class="honeypot-card">
+                        <div class="honeypot-header">
+                            <span class="honeypot-type">SSH</span>
+                            <span class="honeypot-status active">Actif</span>
+                        </div>
+                        <div class="honeypot-info">
+                            <p>Endpoint: 192.168.1.101:22</p>
+                            <p>Connexions: 8</p>
+                        </div>
+                    </div>
+                    <div class="honeypot-card">
+                        <div class="honeypot-header">
+                            <span class="honeypot-type">HTTP</span>
+                            <span class="honeypot-status active">Actif</span>
+                        </div>
+                        <div class="honeypot-info">
+                            <p>Endpoint: 192.168.1.102:80</p>
+                            <p>Connexions: 45</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Health -->
+            <section class="section">
+                <h2>💚 Santé du Système</h2>
+                <div class="health-grid">
+                    <div class="health-item">
+                        <span class="health-label">CPU</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 35%"></div>
+                        </div>
+                        <span class="health-value">35%</span>
+                    </div>
+                    <div class="health-item">
+                        <span class="health-label">Mémoire</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 52%"></div>
+                        </div>
+                        <span class="health-value">52%</span>
+                    </div>
+                    <div class="health-item">
+                        <span class="health-label">Disque</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 28%"></div>
+                        </div>
+                        <span class="health-value">28%</span>
+                    </div>
+                    <div class="health-item">
+                        <span class="health-label">Réseau</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 15%"></div>
+                        </div>
+                        <span class="health-value">15%</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Simulation de données - À remplacer par des appels API réels
+        function updateStats() {
+            document.getElementById('active-honeypots').textContent = '3';
+            document.getElementById('ebpf-events').textContent = '1,247';
+            document.getElementById('recovered-keys').textContent = '7';
+            document.getElementById('neutralized-threats').textContent = '23';
+        }
+
+        function loadRecentActivity() {
+            const activities = [
+                { timestamp: '2026-06-01 13:35:42', type: 'Détection', source: '192.168.1.200', target: 'SMB Honeypot', status: 'Neutralisé' },
+                { timestamp: '2026-06-01 13:32:15', type: 'Extraction', source: 'PID 4521', target: 'Memory Dump', status: 'Succès' },
+                { timestamp: '2026-06-01 13:28:33', type: 'Alerte', source: '192.168.1.201', target: 'SSH Honeypot', status: 'En cours' },
+                { timestamp: '2026-06-01 13:25:10', type: 'Détection', source: '192.168.1.202', target: 'HTTP Honeypot', status: 'Neutralisé' },
+                { timestamp: '2026-06-01 13:20:45', type: 'Extraction', source: 'PID 3892', target: 'AES Key', status: 'Succès' },
+            ];
+
+            const tbody = document.getElementById('recent-activity');
+            tbody.innerHTML = activities.map(a => `
+                <tr>
+                    <td>${a.timestamp}</td>
+                    <td><span class="badge ${a.type === 'Alerte' ? 'warning' : a.type === 'Extraction' ? 'success' : 'danger'}">${a.type}</span></td>
+                    <td>${a.source}</td>
+                    <td>${a.target}</td>
+                    <td><span class="status-badge ${a.status === 'Neutralisé' || a.status === 'Succès' ? 'success' : 'warning'}">${a.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialisation
+        updateStats();
+        loadRecentActivity();
+
+        // Rafraîchissement automatique toutes les 5 secondes
+        setInterval(() => {
+            // À remplacer par des appels WebSocket réels
+            console.log('Rafraîchissement des données...');
+        }, 5000);
+    </script>
+</body>
+</html>

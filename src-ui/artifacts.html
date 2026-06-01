@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinra Defense - Artefacts</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🛡️ Shinra Defense</h1>
+                <span class="subtitle">Active Defense Platform</span>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="live-feed.html" class="nav-link">Live Feed</a>
+                <a href="ebpf-nodes.html" class="nav-link">Nodes eBPF</a>
+                <a href="artifacts.html" class="nav-link active">Artefacts</a>
+            </nav>
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span class="status-text">Système Opérationnel</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Artifacts Overview -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>🔑 Inventaire des Artefacts</h2>
+                    <div class="artifact-controls">
+                        <input type="text" class="search-input" placeholder="Rechercher un artefact...">
+                        <select class="filter-select">
+                            <option value="all">Tous les types</option>
+                            <option value="key">Clés cryptographiques</option>
+                            <option value="shellcode">Shellcodes</option>
+                            <option value="payload">Payloads</option>
+                            <option value="hash">Hashs</option>
+                        </select>
+                        <button class="btn btn-primary">📥 Exporter</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Overview -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🔐</div>
+                    <div class="stat-content">
+                        <h3>Clés AES</h3>
+                        <p class="stat-value">12</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🗝️</div>
+                    <div class="stat-content">
+                        <h3>Clés RSA</h3>
+                        <p class="stat-value">5</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💉</div>
+                    <div class="stat-content">
+                        <h3>Shellcodes</h3>
+                        <p class="stat-value">8</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">#️⃣</div>
+                    <div class="stat-content">
+                        <h3>Hashs MD5/SHA</h3>
+                        <p class="stat-value">23</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Artifacts Table -->
+            <section class="section">
+                <h3>📋 Liste des Artefacts</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Valeur (Preview)</th>
+                                <th>Source PID</th>
+                                <th>Date d'extraction</th>
+                                <th>Confiance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ART-001</td>
+                                <td><span class="badge success">Clé AES-256</span></td>
+                                <td class="artifact-preview">2F8A4C9B... (256 bits)</td>
+                                <td>4521</td>
+                                <td>2026-06-01 13:35:42</td>
+                                <td><span class="confidence high">98%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-002</td>
+                                <td><span class="badge warning">Clé RSA-2048</span></td>
+                                <td class="artifact-preview">A1B2C3D4... (2048 bits)</td>
+                                <td>3892</td>
+                                <td>2026-06-01 13:32:15</td>
+                                <td><span class="confidence high">95%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-003</td>
+                                <td><span class="badge danger">Shellcode</span></td>
+                                <td class="artifact-preview">\x90\x50\x51\x52... (512 bytes)</td>
+                                <td>4521</td>
+                                <td>2026-06-01 13:28:33</td>
+                                <td><span class="confidence medium">72%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-004</td>
+                                <td><span class="badge success">Clé AES-128</span></td>
+                                <td class="artifact-preview">7E3F9A2B... (128 bits)</td>
+                                <td>6789</td>
+                                <td>2026-06-01 13:25:10</td>
+                                <td><span class="confidence high">91%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-005</td>
+                                <td><span class="badge info">Hash MD5</span></td>
+                                <td class="artifact-preview">d41d8cd98f00b204e980...</td>
+                                <td>4521</td>
+                                <td>2026-06-01 13:20:45</td>
+                                <td><span class="confidence high">100%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-006</td>
+                                <td><span class="badge danger">Payload</span></td>
+                                <td class="artifact-preview">MZ\x90\x00... (45 KB)</td>
+                                <td>3892</td>
+                                <td>2026-06-01 13:15:22</td>
+                                <td><span class="confidence medium">68%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ART-007</td>
+                                <td><span class="badge success">Clé AES-256</span></td>
+                                <td class="artifact-preview">C4D5E6F7... (256 bits)</td>
+                                <td>7123</td>
+                                <td>2026-06-01 13:10:08</td>
+                                <td><span class="confidence high">94%</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary">👁️</button>
+                                    <button class="btn btn-sm btn-primary">📋</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Artifact Detail Modal (Hidden by default) -->
+            <div class="modal" id="artifact-modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Détails de l'Artefact</h3>
+                        <button class="modal-close" onclick="closeModal()">✕</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="artifact-detail">
+                            <div class="detail-row">
+                                <span class="detail-label">ID:</span>
+                                <span class="detail-value" id="modal-id">ART-001</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Type:</span>
+                                <span class="detail-value" id="modal-type">Clé AES-256</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Valeur complète:</span>
+                                <div class="detail-value code-block" id="modal-value">2F8A4C9B3D7E1F5A9C2B4D6E8F0A1C3B5D7E9F1A3C5B7D9E1F3A5C7B9D1E3F5</div>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Source PID:</span>
+                                <span class="detail-value" id="modal-pid">4521</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Date d'extraction:</span>
+                                <span class="detail-value" id="modal-date">2026-06-01 13:35:42</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Confiance:</span>
+                                <span class="detail-value" id="modal-confidence">98%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">Fermer</button>
+                        <button class="btn btn-primary">📋 Copier</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Extractions -->
+            <section class="section">
+                <h3>🕐 Extractions Récentes</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker success"></div>
+                        <div class="timeline-content">
+                            <h4>Clé AES-256 extraite</h4>
+                            <p>PID 4521 | Node-Alpha | Confiance: 98%</p>
+                            <span class="timeline-time">Il y a 2 minutes</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker warning"></div>
+                        <div class="timeline-content">
+                            <h4>Shellcode détecté</h4>
+                            <p>PID 3892 | Node-Beta | Confiance: 72%</p>
+                            <span class="timeline-time">Il y a 5 minutes</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker success"></div>
+                        <div class="timeline-content">
+                            <h4>Clé RSA-2048 extraite</h4>
+                            <p>PID 6789 | Node-Gamma | Confiance: 95%</p>
+                            <span class="timeline-time">Il y a 12 minutes</span>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker info"></div>
+                        <div class="timeline-content">
+                            <h4>Hash MD5 calculé</h4>
+                            <p>PID 4521 | Node-Alpha | Confiance: 100%</p>
+                            <span class="timeline-time">Il y a 18 minutes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        function closeModal() {
+            document.getElementById('artifact-modal').style.display = 'none';
+        }
+
+        // Ouvrir le modal quand on clique sur le bouton de vue
+        document.querySelectorAll('.btn-sm').forEach(btn => {
+            if (btn.textContent === '👁️') {
+                btn.addEventListener('click', function() {
+                    document.getElementById('artifact-modal').style.display = 'block';
+                });
+            }
+        });
+
+        // Fermer le modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modal = document.getElementById('artifact-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

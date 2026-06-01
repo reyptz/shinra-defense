@@ -1,0 +1,135 @@
+---
+name: "Artifact Extraction - Memory Scraping"
+description: "Extraction et analyse des artefacts depuis les dumps mémoire"
+version: "1.0"
+author: "Shinra Defense Team"
+
+# Conditions de déclenchement
+triggers:
+  - type: "memory_dump_available"
+    path: "/tmp/shinra/dumps/*.dmp"
+  - type: "manual"
+    command: "extract_artifacts"
+
+# Actions d'extraction
+actions:
+  - name: "Analyser le dump mémoire"
+    type: "memory_analysis"
+    source: "{{ dump_path }}"
+    output_format: "json"
+    register: "analysis_result"
+
+  - name: "Scanner les patterns de clés AES"
+    type: "pattern_matching"
+    source: "{{ analysis_result }}"
+    patterns:
+      - name: "AES-256"
+        regex: "[0-9a-fA-F]{64}"
+        confidence: 0.95
+      - name: "AES-128"
+        regex: "[0-9a-fA-F]{32}"
+        confidence: 0.90
+    register: "aes_matches"
+
+  - name: "Scanner les patterns de clés RSA"
+    type: "pattern_matching"
+    source: "{{ analysis_result }}"
+    patterns:
+      - name: "RSA-2048"
+        regex: "[0-9a-fA-F]{512}"
+        confidence: 0.90
+      - name: "RSA-4096"
+        regex: "[0-9a-fA-F]{1024}"
+        confidence: 0.95
+    register: "rsa_matches"
+
+  - name: "Scanner les shellcodes"
+    type: "pattern_matching"
+    source: "{{ analysis_result }}"
+    patterns:
+      - name: "Shellcode"
+        regex: "(\\\\x[0-9a-fA-F]{2}){10,}"
+        confidence: 0.75
+      - name: "NOP sled"
+        regex: "(\\\\x90){10,}"
+        confidence: 0.80
+    register: "shellcode_matches"
+
+  - name: "Valider les artefacts extraits"
+    type: "artifact_validation"
+    artifacts:
+      - "{{ aes_matches }}"
+      - "{{ rsa_matches }}"
+      - "{{ shellcode_matches }}"
+    validation_rules:
+      - min_confidence: 0.75
+      - max_duplicates: 5
+    register: "validated_artifacts"
+
+  - name: "Enregistrer les artefacts en base de données"
+    type: "database"
+    action: "batch_insert"
+    table: "artifacts"
+    data: "{{ validated_artifacts }}"
+
+  - name: "Ajouter les artefacts à la base vectorielle RAG"
+    type: "rag_indexing"
+    artifacts: "{{ validated_artifacts }}"
+    embedding_model: "all-MiniLM-L6-v2"
+    collection: "shinra_artifacts"
+
+  - name: "Corréler avec les artefacts connus"
+    type: "rag_correlation"
+    artifacts: "{{ validated_artifacts }}"
+    similarity_threshold: 0.80
+    register: "correlation_results"
+
+  - name: "Générer le rapport d'extraction"
+    type: "report_generation"
+    template: "artifact_extraction_report"
+    data:
+      dump_path: "{{ dump_path }}"
+      total_artifacts: "{{ validated_artifacts | length }}"
+      artifact_types:
+        - "{{ validated_artifacts | groupby('type') }}"
+      correlations: "{{ correlation_results }}"
+      timestamp: "{{ timestamp }}"
+    output_path: "/tmp/shinra/reports/extraction_{{ timestamp }}.json"
+
+  - name: "Notifier l'équipe SOC"
+    type: "notification"
+    channels:
+      - "websocket"
+    message:
+      severity: "info"
+      title: "Extraction d'artefacts terminée"
+      details:
+        dump_path: "{{ dump_path }}"
+        total_artifacts: "{{ validated_artifacts | length }}"
+        high_confidence_matches: "{{ correlation_results | length }}"
+        timestamp: "{{ timestamp }}"
+
+# Actions de rollback
+rollback:
+  - name: "Supprimer les artefacts de la base de données"
+    type: "database"
+    action: "delete"
+    table: "artifacts"
+    condition:
+      event_id: "{{ event.id }}"
+
+  - name: "Supprimer les artefacts de la base vectorielle"
+    type: "rag_cleanup"
+    artifact_ids: "{{ validated_artifacts | map('id') }}"
+
+  - name: "Supprimer le rapport généré"
+    type: "file_cleanup"
+    path: "/tmp/shinra/reports/extraction_{{ timestamp }}.json"
+
+# Paramètres de configuration
+config:
+  max_dump_size: "500MB"
+  min_confidence_threshold: 0.75
+  similarity_threshold: 0.80
+  embedding_model: "all-MiniLM-L6-v2"
+  report_retention_days: 30

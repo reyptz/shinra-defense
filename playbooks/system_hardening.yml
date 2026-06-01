@@ -1,0 +1,118 @@
+---
+name: "System Hardening - Post-Incident Security"
+description: "Durcissement système après incident de sécurité"
+version: "1.0"
+author: "Shinra Defense Team"
+
+# Conditions de déclenchement
+triggers:
+  - type: "incident_resolved"
+    severity: "critical"
+  - type: "manual"
+    command: "harden_system"
+
+# Actions de durcissement
+actions:
+  - name: "Analyser les vulnérabilités système"
+    type: "vulnerability_scan"
+    tool: "trivy"
+    scope: "filesystem"
+    severity: "HIGH,CRITICAL"
+    register: "vulnerabilities"
+
+  - name: "Appliquer les mises à jour de sécurité"
+    type: "system_update"
+    packages:
+      - "security-updates"
+    auto_reboot: false
+
+  - name: "Renforcer les permissions des fichiers sensibles"
+    type: "file_permissions"
+    paths:
+      - "/etc/shadow"
+      - "/etc/passwd"
+      - "/var/log/"
+      - "/tmp/shinra/"
+    mode: "0600"
+    owner: "root"
+
+  - name: "Désactiver les services non nécessaires"
+    type: "service_control"
+    action: "disable"
+    services:
+      - "telnet"
+      - "ftp"
+      - "rsh"
+      - "rlogin"
+
+  - name: "Configurer le firewall pour bloquer les ports inutilisés"
+    type: "firewall_configuration"
+    default_policy: "DROP"
+    allowed_ports:
+      - 22    # SSH
+      - 443   # HTTPS
+      - 8000  # Shinra Engine API
+
+  - name: "Activer SELinux/AppArmor"
+    type: "security_module"
+    action: "enable"
+    mode: "enforcing"
+
+  - name: "Configurer l'audit système"
+    type: "audit_configuration"
+    rules:
+      - "-a exit,always -F arch=b64 -S execve"
+      - "-a exit,always -F arch=b32 -S execve"
+      - "-w /etc/shadow -p wa"
+      - "-w /etc/passwd -p wa"
+
+  - name: "Purger les logs temporaires sensibles"
+    type: "log_cleanup"
+    paths:
+      - "/tmp/shinra/dumps/"
+      - "/tmp/shinra/logs/"
+    older_than: "7d"
+    secure_delete: true
+
+  - name: "Générer le rapport de durcissement"
+    type: "report_generation"
+    template: "hardening_report"
+    data:
+      vulnerabilities_fixed: "{{ vulnerabilities | length }}"
+      services_disabled: "{{ disabled_services | length }}"
+      firewall_rules_applied: "{{ firewall_rules | length }}"
+      timestamp: "{{ timestamp }}"
+    output_path: "/tmp/shinra/reports/hardening_{{ timestamp }}.json"
+
+  - name: "Notifier l'équipe SOC"
+    type: "notification"
+    channels:
+      - "websocket"
+      - "email"
+    message:
+      severity: "info"
+      title: "Durcissement système terminé"
+      details:
+        vulnerabilities_fixed: "{{ vulnerabilities | length }}"
+        timestamp: "{{ timestamp }}"
+
+# Actions de rollback
+rollback:
+  - name: "Restaurer les services désactivés"
+    type: "service_control"
+    action: "enable"
+    services: "{{ disabled_services }}"
+
+  - name: "Restaurer la configuration firewall"
+    type: "firewall_restore"
+    backup: "/etc/firewall.backup"
+
+  - name: "Désactiver SELinux/AppArmor"
+    type: "security_module"
+    action: "disable"
+
+# Paramètres de configuration
+config:
+  auto_reboot: false
+  log_retention_days: 7
+  audit_log_path: "/var/log/audit/audit.log"

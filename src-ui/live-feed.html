@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shinra Defense - Live Feed</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>🛡️ Shinra Defense</h1>
+                <span class="subtitle">Active Defense Platform</span>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="live-feed.html" class="nav-link active">Live Feed</a>
+                <a href="ebpf-nodes.html" class="nav-link">Nodes eBPF</a>
+                <a href="artifacts.html" class="nav-link">Artefacts</a>
+            </nav>
+            <div class="status-indicator">
+                <span class="status-dot online"></span>
+                <span class="status-text">Système Opérationnel</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Live Feed Header -->
+            <section class="section">
+                <div class="feed-header">
+                    <h2>📡 Flux en Direct</h2>
+                    <div class="feed-controls">
+                        <button class="btn btn-primary" id="pause-btn">⏸️ Pause</button>
+                        <button class="btn btn-secondary" id="clear-btn">🗑️ Effacer</button>
+                        <select class="filter-select" id="event-filter">
+                            <option value="all">Tous les événements</option>
+                            <option value="detection">Détections</option>
+                            <option value="extraction">Extractions</option>
+                            <option value="alert">Alertes</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Events Stream -->
+            <section class="section">
+                <div class="live-feed-container" id="live-feed">
+                    <div class="feed-item detection">
+                        <div class="feed-time">13:45:23</div>
+                        <div class="feed-content">
+                            <span class="feed-icon">🎯</span>
+                            <div class="feed-details">
+                                <h4>Détection eBPF</h4>
+                                <p>Syscall: openat | PID: 4521 | Path: /tmp/malware.exe</p>
+                                <span class="feed-source">Source: 192.168.1.200</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feed-item extraction">
+                        <div class="feed-time">13:45:15</div>
+                        <div class="feed-content">
+                            <span class="feed-icon">🔑</span>
+                            <div class="feed-details">
+                                <h4>Extraction Clé AES</h4>
+                                <p>Pattern détecté: 0x2F 0x8A 0x4C... | Longueur: 256 bits</p>
+                                <span class="feed-source">PID: 4521</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feed-item alert">
+                        <div class="feed-time">13:45:02</div>
+                        <div class="feed-content">
+                            <span class="feed-icon">🚨</span>
+                            <div class="feed-details">
+                                <h4>Alerte Ransomware</h4>
+                                <p>Comportement de chiffrement massif détecté</p>
+                                <span class="feed-source">Honeypot: SMB-192.168.1.100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feed-item neutralization">
+                        <div class="feed-time">13:44:58</div>
+                        <div class="feed-content">
+                            <span class="feed-icon">⚡</span>
+                            <div class="feed-details">
+                                <h4>Neutralisation Processus</h4>
+                                <p>Signal: SIGKILL envoyé au PID 4521</p>
+                                <span class="feed-source">Action automatique</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feed-item detection">
+                        <div class="feed-time">13:44:45</div>
+                        <div class="feed-content">
+                            <span class="feed-icon">🎯</span>
+                            <div class="feed-details">
+                                <h4>Détection eBPF</h4>
+                                <p>Syscall: connect | PID: 3892 | Dest: 10.0.0.5:4444</p>
+                                <span class="feed-source">Source: 192.168.1.201</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Event Statistics -->
+            <section class="section">
+                <h3>📈 Statistiques du Flux</h3>
+                <div class="feed-stats">
+                    <div class="feed-stat-item">
+                        <span class="feed-stat-label">Événements/min</span>
+                        <span class="feed-stat-value" id="events-per-minute">24</span>
+                    </div>
+                    <div class="feed-stat-item">
+                        <span class="feed-stat-label">Détections</span>
+                        <span class="feed-stat-value" id="detection-count">156</span>
+                    </div>
+                    <div class="feed-stat-item">
+                        <span class="feed-stat-label">Extractions</span>
+                        <span class="feed-stat-value" id="extraction-count">12</span>
+                    </div>
+                    <div class="feed-stat-item">
+                        <span class="feed-stat-label">Neutralisations</span>
+                        <span class="feed-stat-value" id="neutralization-count">8</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let isPaused = false;
+        let eventCount = 156;
+        let extractionCount = 12;
+        let neutralizationCount = 8;
+
+        document.getElementById('pause-btn').addEventListener('click', function() {
+            isPaused = !isPaused;
+            this.textContent = isPaused ? '▶️ Reprendre' : '⏸️ Pause';
+            this.classList.toggle('btn-warning');
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            document.getElementById('live-feed').innerHTML = '';
+        });
+
+        document.getElementById('event-filter').addEventListener('change', function() {
+            const filter = this.value;
+            const items = document.querySelectorAll('.feed-item');
+            items.forEach(item => {
+                if (filter === 'all') {
+                    item.style.display = 'flex';
+                } else if (filter === 'detection' && item.classList.contains('detection')) {
+                    item.style.display = 'flex';
+                } else if (filter === 'extraction' && item.classList.contains('extraction')) {
+                    item.style.display = 'flex';
+                } else if (filter === 'alert' && item.classList.contains('alert')) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Simulation d'événements en temps réel
+        function addLiveEvent() {
+            if (isPaused) return;
+
+            const feed = document.getElementById('live-feed');
+            const eventTypes = ['detection', 'extraction', 'alert', 'neutralization'];
+            const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0];
+
+            const eventTemplates = {
+                detection: {
+                    icon: '🎯',
+                    title: 'Détection eBPF',
+                    details: `Syscall: ${['openat', 'connect', 'read', 'write'][Math.floor(Math.random() * 4)]} | PID: ${Math.floor(Math.random() * 9000) + 1000}`
+                },
+                extraction: {
+                    icon: '🔑',
+                    title: 'Extraction Clé',
+                    details: `Pattern détecté: 0x${Math.floor(Math.random() * 255).toString(16).toUpperCase()}... | Longueur: ${['128', '256', '512'][Math.floor(Math.random() * 3)]} bits`
+                },
+                alert: {
+                    icon: '🚨',
+                    title: 'Alerte Sécurité',
+                    details: 'Comportement anormal détecté'
+                },
+                neutralization: {
+                    icon: '⚡',
+                    title: 'Neutralisation',
+                    details: `Signal: SIGKILL envoyé au PID ${Math.floor(Math.random() * 9000) + 1000}`
+                }
+            };
+
+            const template = eventTemplates[randomType];
+            const newItem = document.createElement('div');
+            newItem.className = `feed-item ${randomType}`;
+            newItem.innerHTML = `
+                <div class="feed-time">${time}</div>
+                <div class="feed-content">
+                    <span class="feed-icon">${template.icon}</span>
+                    <div class="feed-details">
+                        <h4>${template.title}</h4>
+                        <p>${template.details}</p>
+                        <span class="feed-source">Source: Auto</span>
+                    </div>
+                </div>
+            `;
+
+            feed.insertBefore(newItem, feed.firstChild);
+
+            // Limiter à 50 événements
+            while (feed.children.length > 50) {
+                feed.removeChild(feed.lastChild);
+            }
+
+            // Mettre à jour les statistiques
+            eventCount++;
+            if (randomType === 'extraction') extractionCount++;
+            if (randomType === 'neutralization') neutralizationCount++;
+            
+            document.getElementById('detection-count').textContent = eventCount;
+            document.getElementById('extraction-count').textContent = extractionCount;
+            document.getElementById('neutralization-count').textContent = neutralizationCount;
+        }
+
+        // Ajouter un événement toutes les 2-5 secondes
+        setInterval(() => {
+            addLiveEvent();
+        }, Math.random() * 3000 + 2000);
+    </script>
+</body>
+</html>

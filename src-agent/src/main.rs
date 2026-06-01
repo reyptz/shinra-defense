@@ -1,4 +1,4 @@
-use aya::{include_bytes_aligned, Bpf, programs::KProbe};
+use aya::{include_bytes_aligned, Bpf, programs::TracePoint};
 use aya_log::BpfLogger;
 use anyhow::Context;
 use bytes::Bytes;
@@ -208,20 +208,21 @@ async fn main() -> anyhow::Result<()> {
     }
     
     // Attach eBPF programs
-    let program: &mut KProbe = bpf.program_mut("sys_enter_openat")?.try_into()?;
+    // Les programmes sont définis avec SEC("syscalls/sys_enter_*") → TracePoints (pas KProbes)
+    let program: &mut TracePoint = bpf.program_mut("sys_enter_openat")?.try_into()?;
     program.load()?;
-    program.attach("sys_openat", 0)?;
-    info!("Attached sys_enter_openat probe");
+    program.attach("syscalls", "sys_enter_openat")?;
+    info!("Attached sys_enter_openat tracepoint");
     
-    let program: &mut KProbe = bpf.program_mut("sys_enter_read")?.try_into()?;
+    let program: &mut TracePoint = bpf.program_mut("sys_enter_read")?.try_into()?;
     program.load()?;
-    program.attach("sys_read", 0)?;
-    info!("Attached sys_enter_read probe");
+    program.attach("syscalls", "sys_enter_read")?;
+    info!("Attached sys_enter_read tracepoint");
     
-    let program: &mut KProbe = bpf.program_mut("sys_enter_connect")?.try_into()?;
+    let program: &mut TracePoint = bpf.program_mut("sys_enter_connect")?.try_into()?;
     program.load()?;
-    program.attach("sys_connect", 0)?;
-    info!("Attached sys_enter_connect probe");
+    program.attach("syscalls", "sys_enter_connect")?;
+    info!("Attached sys_enter_connect tracepoint");
     
     // Create channel for event processing
     let (tx, mut rx) = mpsc::channel::<EbpfEvent>(1000);

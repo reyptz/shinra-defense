@@ -4,6 +4,7 @@ Control Plane & Intelligence for Active Defense Platform
 """
 from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -15,11 +16,22 @@ from database import (
     Honeypot, EbpfEvent, Artifact
 )
 
+# Lifespan context manager (remplace @app.on_event déprécié)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database on startup, cleanup on shutdown"""
+    init_db()
+    print("Shinra Defense Engine started successfully")
+    yield
+    print("Shinra Defense Engine shutting down")
+
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Shinra Defense Engine",
     description="Control Plane & Intelligence for Active Defense Platform",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -47,7 +59,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             try:
                 await connection.send_json(message)
-            except:
+            except Exception:
                 pass
 
 manager = ConnectionManager()
@@ -108,13 +120,6 @@ class ArtifactResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    init_db()
-    print("Shinra Defense Engine started successfully")
 
 # Health check
 @app.get("/health")

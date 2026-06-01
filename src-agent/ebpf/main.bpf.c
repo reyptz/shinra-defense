@@ -37,7 +37,8 @@ int sys_enter_openat(struct trace_event_raw_sys_enter *ctx)
     bpf_get_current_comm(&e.comm, sizeof(e.comm));
 
     // Read filename from syscall arguments
-    void *filename_ptr = (void *)BPF_CORE_READ(ctx, args[2]);
+    // openat(dfd=args[0], filename=args[1], flags=args[2], mode=args[3])
+    void *filename_ptr = (void *)BPF_CORE_READ(ctx, args[1]);
     bpf_probe_read_user_str(&e.filename, sizeof(e.filename), filename_ptr);
 
     bpf_ringbuf_output(&events, &e, sizeof(e), 0);

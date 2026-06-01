@@ -24,9 +24,10 @@ class HoneypotContainerManager:
         """
         try:
             if use_podman:
-                # Connect to Podman socket
-                self.client = docker.from_env(
-                    environment={"DOCKER_HOST": "unix:///run/podman/podman.sock"}
+                # Connect to Podman socket via DockerClient
+                # docker.from_env() n'accepte pas de paramètre 'environment'.
+                self.client = docker.DockerClient(
+                    base_url="unix:///run/podman/podman.sock"
                 )
             else:
                 self.client = docker.from_env()

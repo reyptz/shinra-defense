@@ -2,7 +2,7 @@
 Database models and session management for Shinra Defense Engine
 """
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float, ForeignKey
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship, Session
 from datetime import datetime
 
 # Database configuration
@@ -99,7 +99,7 @@ def get_db():
 
 
 # Database utility functions
-def create_honeypot(db: SessionLocal, honeypot_type: str, endpoint: str, container_id: str = None):
+def create_honeypot(db: Session, honeypot_type: str, endpoint: str, container_id: str = None):
     """Create a new honeypot entry"""
     honeypot = Honeypot(
         type=honeypot_type,
@@ -113,7 +113,7 @@ def create_honeypot(db: SessionLocal, honeypot_type: str, endpoint: str, contain
     return honeypot
 
 
-def create_ebpf_event(db: SessionLocal, pid: int, uid: int, comm: str, syscall: str, 
+def create_ebpf_event(db: Session, pid: int, uid: int, comm: str, syscall: str, 
                      target: str, syscall_type: int, honeypot_id: int = None):
     """Create a new eBPF event entry"""
     event = EbpfEvent(
@@ -131,7 +131,7 @@ def create_ebpf_event(db: SessionLocal, pid: int, uid: int, comm: str, syscall: 
     return event
 
 
-def create_artifact(db: SessionLocal, event_id: int, artifact_type: str, 
+def create_artifact(db: Session, event_id: int, artifact_type: str, 
                    value: str, confidence: float):
     """Create a new artifact entry"""
     artifact = Artifact(
@@ -146,17 +146,17 @@ def create_artifact(db: SessionLocal, event_id: int, artifact_type: str,
     return artifact
 
 
-def get_active_honeypots(db: SessionLocal):
+def get_active_honeypots(db: Session):
     """Get all active honeypots"""
     return db.query(Honeypot).filter(Honeypot.status == "active").all()
 
 
-def get_recent_events(db: SessionLocal, limit: int = 100):
+def get_recent_events(db: Session, limit: int = 100):
     """Get recent eBPF events"""
     return db.query(EbpfEvent).order_by(EbpfEvent.timestamp.desc()).limit(limit).all()
 
 
-def get_artifacts_by_type(db: SessionLocal, artifact_type: str = None):
+def get_artifacts_by_type(db: Session, artifact_type: str = None):
     """Get artifacts, optionally filtered by type"""
     query = db.query(Artifact)
     if artifact_type:

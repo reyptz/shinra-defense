@@ -40,6 +40,7 @@
                             <option value="detection">Détections</option>
                             <option value="extraction">Extractions</option>
                             <option value="alert">Alertes</option>
+                            <option value="neutralization">Neutralisations</option>
                         </select>
                     </div>
                 </div>
@@ -162,6 +163,8 @@
                 } else if (filter === 'extraction' && item.classList.contains('extraction')) {
                     item.style.display = 'flex';
                 } else if (filter === 'alert' && item.classList.contains('alert')) {
+                    item.style.display = 'flex';
+                } else if (filter === 'neutralization' && item.classList.contains('neutralization')) {
                     item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';

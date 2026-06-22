@@ -244,18 +244,18 @@ async fn main() -> anyhow::Result<()> {
                 
                 if should_terminate {
                     warn!("Terminating suspicious process: PID={}", event.pid);
-                    if let Err(e) = KillSwitch::terminate_process(event.pid) {
-                        error!("Failed to terminate process: {}", e);
-                    }
-                    
-                    // Perform memory dump before termination
+
+                    // Perform memory dump before termination (process must still be alive)
                     if let Ok(memory) = dump_process_memory(event.pid) {
                         let artifacts = scraper.scan_memory(&memory);
                         for artifact in artifacts {
-                            info!("Extracted artifact: type={}, confidence={}", 
+                            info!("Extracted artifact: type={}, confidence={}",
                                 artifact.artifact_type, artifact.confidence);
-                            // In real implementation, send to Python engine
                         }
+                    }
+
+                    if let Err(e) = KillSwitch::terminate_process(event.pid) {
+                        error!("Failed to terminate process: {}", e);
                     }
                 }
             }

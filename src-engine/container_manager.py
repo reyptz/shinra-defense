@@ -6,7 +6,7 @@ import docker
 from docker.errors import DockerException, APIError
 from typing import Optional, Dict, List
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -273,7 +273,7 @@ class HoneypotContainerManager:
         removed_count = 0
         try:
             containers = self.client.containers.list(all=True)
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             
             for container in containers:
                 created_str = container.attrs["Created"]

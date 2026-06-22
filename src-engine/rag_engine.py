@@ -4,10 +4,8 @@ Correlates extracted signatures with local vector database
 """
 import chromadb
 from sentence_transformers import SentenceTransformer
-import numpy as np
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 import logging
-import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

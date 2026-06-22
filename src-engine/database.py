@@ -2,8 +2,8 @@
 Database models and session management for Shinra Defense Engine
 """
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, Float, ForeignKey
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship, Session
-from datetime import datetime
+from sqlalchemy.orm import DeclarativeBase, sessionmaker, relationship, Session
+from datetime import datetime, timezone
 
 # Database configuration
 DATABASE_URL = "sqlite:///./shinra_defense.db"
@@ -16,7 +16,8 @@ engine = create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 class Honeypot(Base):
@@ -28,8 +29,8 @@ class Honeypot(Base):
     status = Column(String, default="active")  # active, inactive, compromised
     endpoint = Column(String, nullable=False)  # IP:Port
     container_id = Column(String, nullable=True)  # Docker container ID
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Relationships
     events = relationship("EbpfEvent", back_populates="honeypot")
@@ -40,7 +41,7 @@ class EbpfEvent(Base):
     __tablename__ = "events_ebpf"
     
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     pid = Column(Integer, nullable=False)
     uid = Column(Integer, nullable=False)
     comm = Column(String, nullable=False)  # Process name
@@ -65,7 +66,7 @@ class Artifact(Base):
     artifact_type = Column(String, nullable=False)  # AES-256, RSA, Shellcode, etc.
     value = Column(Text, nullable=False)  # The extracted value
     confidence = Column(Float, default=0.0)  # Confidence score (0-1)
-    extracted_at = Column(DateTime, default=datetime.utcnow)
+    extracted_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
     # Relationships
     event = relationship("EbpfEvent", back_populates="artifacts")
@@ -80,7 +81,7 @@ class VectorRAG(Base):
     context = Column(Text, nullable=False)  # Context description
     artifact_type = Column(String, nullable=False)  # Type of artifact
     similarity_threshold = Column(Float, default=0.8)  # Threshold for matching
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
 
 # Create all tables
